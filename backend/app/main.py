@@ -14,7 +14,7 @@ import logging
 
 from app.core.config import settings
 from app.core.database import init_db
-from app.api.v1.endpoints import health, projects, drug_design, safety, datasets, models, experiments, jobs, clinical_trials
+from app.api.v1.endpoints import health, projects, drug_design, safety, datasets, models, experiments, jobs, clinical_trials, repurposing
 
 # Configure logging
 logging.basicConfig(
@@ -189,6 +189,13 @@ app.include_router(
     clinical_trials.router,
     prefix=f"{settings.API_V1_PREFIX}/clinical-trials",
     tags=["Clinical Trials"]
+)
+
+# Include drug repurposing endpoint
+app.include_router(
+    repurposing.router,
+    prefix=f"{settings.API_V1_PREFIX}/repurposing",
+    tags=["Drug Repurposing"]
 )
 
 

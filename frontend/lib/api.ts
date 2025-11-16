@@ -92,11 +92,11 @@ export const clinicalTrialsApi = {
   generateSafetyPlan: (data: any) => apiClient.post('/clinical-trials/safety-monitoring', data),
 }
 
-// Repurposing (to be implemented)
+// Drug Repurposing
 export const repurposingApi = {
-  findIndications: (drugId: string) => apiClient.get(`/repurposing/indications/${drugId}`),
-  analyzeMechanism: (data: any) => apiClient.post('/repurposing/mechanism', data),
-  findCombinations: (data: any) => apiClient.post('/repurposing/combinations', data),
+  mineKnowledgeGraph: (data: any) => apiClient.post('/repurposing/knowledge-graph', data),
+  predictMechanism: (data: any) => apiClient.post('/repurposing/mechanism', data),
+  discoverCombinations: (data: any) => apiClient.post('/repurposing/combinations', data),
 }
 
 // Safety

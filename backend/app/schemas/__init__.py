@@ -104,6 +104,22 @@ from app.schemas.clinical_trials import (
     SafetyMonitoringResponse,
 )
 
+# Drug Repurposing schemas
+from app.schemas.repurposing import (
+    KnowledgeGraphRequest,
+    KnowledgeGraphResponse,
+    PathNode,
+    KnowledgePath,
+    IndicationCandidate,
+    MechanismPredictionRequest,
+    MechanismPredictionResponse,
+    TargetPrediction,
+    PathwayEnrichment,
+    CombinationDiscoveryRequest,
+    CombinationDiscoveryResponse,
+    DrugCombination,
+)
+
 __all__ = [
     # User
     "User",
@@ -143,4 +159,28 @@ __all__ = [
     "DDIInteraction",
     "ToxicityLevel",
     "ADMETProperty",
+    # Clinical Trials
+    "PatientCriteria",
+    "PatientRecruitmentRequest",
+    "RecruitmentSite",
+    "PatientRecruitmentResponse",
+    "TrialDesignRequest",
+    "TrialArm",
+    "TrialDesignResponse",
+    "SafetyMonitoringRequest",
+    "SafetyMetric",
+    "SafetyMonitoringResponse",
+    # Drug Repurposing
+    "KnowledgeGraphRequest",
+    "KnowledgeGraphResponse",
+    "PathNode",
+    "KnowledgePath",
+    "IndicationCandidate",
+    "MechanismPredictionRequest",
+    "MechanismPredictionResponse",
+    "TargetPrediction",
+    "PathwayEnrichment",
+    "CombinationDiscoveryRequest",
+    "CombinationDiscoveryResponse",
+    "DrugCombination",
 ]

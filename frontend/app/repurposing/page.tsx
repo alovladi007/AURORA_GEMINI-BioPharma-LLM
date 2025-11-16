@@ -9,18 +9,21 @@ const features = [
     description: 'Explore drug-disease-target networks to discover new indications',
     icon: ShareIcon,
     href: '/repurposing/knowledge-graph',
+    status: 'available',
   },
   {
     name: 'Mechanism Prediction',
     description: 'Predict mechanisms of action using network-based approaches',
     icon: MagnifyingGlassIcon,
     href: '/repurposing/mechanism',
+    status: 'available',
   },
   {
     name: 'Combination Discovery',
     description: 'Identify synergistic drug combinations for improved efficacy',
     icon: BeakerIcon,
     href: '/repurposing/combinations',
+    status: 'available',
   },
 ]
 
@@ -59,10 +62,13 @@ export default function RepurposingPage() {
             <Link
               key={feature.name}
               href={feature.href}
-              className="card group hover:shadow-lg hover:ring-2 hover:ring-purple-500"
+              className="card group hover:shadow-lg hover:ring-2 hover:ring-purple-500 transition-all"
             >
-              <feature.icon className="h-8 w-8 text-purple-600" />
-              <h3 className="mt-4 text-lg font-semibold text-gray-900 group-hover:text-purple-700">
+              <div className="flex items-center justify-between mb-4">
+                <feature.icon className="h-8 w-8 text-purple-600" />
+                <span className="badge badge-success text-xs">Available</span>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 group-hover:text-purple-700">
                 {feature.name}
               </h3>
               <p className="mt-2 text-sm text-gray-600">{feature.description}</p>
@@ -127,29 +133,28 @@ export default function RepurposingPage() {
           </div>
         </div>
 
-        {/* Graph Visualization Preview */}
-        <div className="mt-8 card bg-purple-50 border-purple-200">
-          <h3 className="text-lg font-semibold text-purple-900">Interactive Network Visualization</h3>
+        {/* Key Insights */}
+        <div className="mt-8 card bg-purple-50 border-2 border-purple-200">
+          <h3 className="text-lg font-semibold text-purple-900">Network-Based Drug Discovery</h3>
           <p className="mt-2 text-sm text-purple-700">
-            Explore drug-disease-target relationships through interactive graph visualizations.
-            Navigate shortest paths, identify key hubs, and discover hidden connections.
+            Leverage knowledge graphs and network medicine approaches to identify repurposing opportunities.
+            Our platform integrates multiple data sources including protein-protein interactions,
+            gene expression signatures, and clinical evidence to provide comprehensive drug-disease insights.
           </p>
-          <div className="mt-4 rounded-lg border-2 border-dashed border-purple-300 bg-white p-8 text-center">
-            <ShareIcon className="mx-auto h-12 w-12 text-purple-400" />
-            <p className="mt-2 text-sm text-purple-600">Graph visualization coming soon</p>
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white rounded-lg p-4">
+              <p className="text-xs text-purple-600 font-medium mb-1">Data Sources</p>
+              <p className="text-sm text-gray-700">Drug databases, biomedical literature, clinical trials</p>
+            </div>
+            <div className="bg-white rounded-lg p-4">
+              <p className="text-xs text-purple-600 font-medium mb-1">Analysis Methods</p>
+              <p className="text-sm text-gray-700">Network proximity, pathway enrichment, target prediction</p>
+            </div>
+            <div className="bg-white rounded-lg p-4">
+              <p className="text-xs text-purple-600 font-medium mb-1">Evidence Types</p>
+              <p className="text-sm text-gray-700">Molecular, genetic, clinical, pharmacological</p>
+            </div>
           </div>
-        </div>
-
-        {/* Placeholder Notice */}
-        <div className="mt-8 rounded-lg border-2 border-dashed border-gray-300 p-8 text-center">
-          <ArrowPathIcon className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-semibold text-gray-900">Module Under Development</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            The Drug Repurposing module is currently being built. Check back soon for full functionality.
-          </p>
-          <Link href="/" className="mt-4 btn-primary inline-flex">
-            Back to Home
-          </Link>
         </div>
       </main>
     </div>
