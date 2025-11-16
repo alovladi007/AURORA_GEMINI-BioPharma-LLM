@@ -90,6 +90,20 @@ from app.schemas.safety import (
     ADMETProperty,
 )
 
+# Clinical Trials schemas
+from app.schemas.clinical_trials import (
+    PatientCriteria,
+    PatientRecruitmentRequest,
+    RecruitmentSite,
+    PatientRecruitmentResponse,
+    TrialDesignRequest,
+    TrialArm,
+    TrialDesignResponse,
+    SafetyMonitoringRequest,
+    SafetyMetric,
+    SafetyMonitoringResponse,
+)
+
 __all__ = [
     # User
     "User",
