@@ -85,11 +85,11 @@ export const drugDesignApi = {
   optimize: (data: any) => apiClient.post('/drug-design/optimize', data),
 }
 
-// Clinical Trials (to be implemented)
+// Clinical Trials
 export const clinicalTrialsApi = {
   recruitPatients: (data: any) => apiClient.post('/clinical-trials/recruit', data),
   designTrial: (data: any) => apiClient.post('/clinical-trials/design', data),
-  monitorSafety: (trialId: string) => apiClient.get(`/clinical-trials/${trialId}/safety`),
+  generateSafetyPlan: (data: any) => apiClient.post('/clinical-trials/safety-monitoring', data),
 }
 
 // Repurposing (to be implemented)

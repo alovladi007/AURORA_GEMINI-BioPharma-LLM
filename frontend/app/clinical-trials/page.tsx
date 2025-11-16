@@ -9,18 +9,21 @@ const features = [
     description: 'Intelligent patient stratification and enrollment optimization',
     icon: UsersIcon,
     href: '/clinical-trials/recruitment',
+    status: 'available',
   },
   {
     name: 'Trial Design',
     description: 'AI-assisted trial design with power analysis and sample size calculation',
     icon: ChartLineIcon,
     href: '/clinical-trials/design',
+    status: 'available',
   },
   {
     name: 'Safety Monitoring',
     description: 'Real-time adverse event monitoring and safety signal detection',
     icon: ShieldExclamationIcon,
     href: '/clinical-trials/safety',
+    status: 'available',
   },
 ]
 
@@ -59,10 +62,13 @@ export default function ClinicalTrialsPage() {
             <Link
               key={feature.name}
               href={feature.href}
-              className="card group hover:shadow-lg hover:ring-2 hover:ring-green-500"
+              className="card group hover:shadow-lg hover:ring-2 hover:ring-green-500 transition-all"
             >
-              <feature.icon className="h-8 w-8 text-green-600" />
-              <h3 className="mt-4 text-lg font-semibold text-gray-900 group-hover:text-green-700">
+              <div className="flex items-center justify-between mb-4">
+                <feature.icon className="h-8 w-8 text-green-600" />
+                <span className="badge badge-success text-xs">Available</span>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 group-hover:text-green-700">
                 {feature.name}
               </h3>
               <p className="mt-2 text-sm text-gray-600">{feature.description}</p>
@@ -80,27 +86,27 @@ export default function ClinicalTrialsPage() {
         <div className="mt-8 card">
           <h3 className="text-lg font-semibold text-gray-900">Key Capabilities</h3>
           <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="rounded-lg bg-green-50 p-4">
+            <div className="rounded-lg bg-green-50 border border-green-200 p-4">
               <h4 className="font-medium text-green-900">Patient Stratification</h4>
               <p className="mt-1 text-sm text-green-700">
                 Automatically identify and stratify patients based on demographics, biomarkers, and
                 risk factors
               </p>
             </div>
-            <div className="rounded-lg bg-green-50 p-4">
+            <div className="rounded-lg bg-green-50 border border-green-200 p-4">
               <h4 className="font-medium text-green-900">Adaptive Design</h4>
               <p className="mt-1 text-sm text-green-700">
                 Receive recommendations for arm expansion, dropping, or dose modifications based on
                 interim results
               </p>
             </div>
-            <div className="rounded-lg bg-green-50 p-4">
-              <h4 className="font-medium text-green-900">Event Prediction</h4>
+            <div className="rounded-lg bg-green-50 border border-green-200 p-4">
+              <h4 className="font-medium text-green-900">Power Analysis</h4>
               <p className="mt-1 text-sm text-green-700">
-                Predict time-to-event outcomes using survival analysis and ML models
+                Calculate optimal sample sizes with statistical power analysis and effect size estimates
               </p>
             </div>
-            <div className="rounded-lg bg-green-50 p-4">
+            <div className="rounded-lg bg-green-50 border border-green-200 p-4">
               <h4 className="font-medium text-green-900">Safety Signals</h4>
               <p className="mt-1 text-sm text-green-700">
                 Detect adverse events and safety signals in real-time with automated alerts
@@ -109,16 +115,29 @@ export default function ClinicalTrialsPage() {
           </div>
         </div>
 
-        {/* Placeholder Notice */}
-        <div className="mt-8 rounded-lg border-2 border-dashed border-gray-300 p-8 text-center">
-          <UserGroupIcon className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-semibold text-gray-900">Module Under Development</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            The Clinical Trial Optimization module is currently being built. Check back soon for full functionality.
-          </p>
-          <Link href="/" className="mt-4 btn-primary inline-flex">
-            Back to Home
-          </Link>
+        {/* Trial Phase Support */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="card text-center">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-3">
+              <span className="text-lg font-bold text-green-600">1</span>
+            </div>
+            <h3 className="text-sm font-medium text-gray-900">Phase I</h3>
+            <p className="mt-1 text-xs text-gray-600">Dose-escalation and safety assessment</p>
+          </div>
+          <div className="card text-center">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-3">
+              <span className="text-lg font-bold text-green-600">2</span>
+            </div>
+            <h3 className="text-sm font-medium text-gray-900">Phase II</h3>
+            <p className="mt-1 text-xs text-gray-600">Efficacy evaluation and dose ranging</p>
+          </div>
+          <div className="card text-center">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-3">
+              <span className="text-lg font-bold text-green-600">3</span>
+            </div>
+            <h3 className="text-sm font-medium text-gray-900">Phase III</h3>
+            <p className="mt-1 text-xs text-gray-600">Large-scale efficacy and safety</p>
+          </div>
         </div>
       </main>
     </div>
