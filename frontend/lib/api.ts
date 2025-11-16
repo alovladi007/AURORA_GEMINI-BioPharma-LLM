@@ -99,11 +99,66 @@ export const repurposingApi = {
   findCombinations: (data: any) => apiClient.post('/repurposing/combinations', data),
 }
 
-// Safety (to be implemented)
+// Safety
 export const safetyApi = {
   predictADMET: (data: any) => apiClient.post('/safety/admet', data),
   predictToxicity: (data: any) => apiClient.post('/safety/toxicity', data),
   screenDDI: (data: any) => apiClient.post('/safety/ddi', data),
+}
+
+// Datasets
+export const datasetApi = {
+  list: (params?: { project_id?: number; dataset_type?: string; skip?: number; limit?: number }) =>
+    apiClient.get('/datasets', { params }),
+  summary: (params?: { project_id?: number }) =>
+    apiClient.get('/datasets/summary', { params }),
+  get: (id: number) => apiClient.get(`/datasets/${id}`),
+  create: (data: any) => apiClient.post('/datasets', data),
+  update: (id: number, data: any) => apiClient.put(`/datasets/${id}`, data),
+  delete: (id: number) => apiClient.delete(`/datasets/${id}`),
+}
+
+// ML Models
+export const modelApi = {
+  list: (params?: { project_id?: number; model_type?: string; skip?: number; limit?: number }) =>
+    apiClient.get('/models', { params }),
+  summary: (params?: { project_id?: number }) =>
+    apiClient.get('/models/summary', { params }),
+  get: (id: number) => apiClient.get(`/models/${id}`),
+  create: (data: any) => apiClient.post('/models', data),
+  update: (id: number, data: any) => apiClient.put(`/models/${id}`, data),
+  delete: (id: number) => apiClient.delete(`/models/${id}`),
+}
+
+// Experiments
+export const experimentApi = {
+  list: (params?: {
+    project_id?: number;
+    model_id?: number;
+    dataset_id?: number;
+    status?: string;
+    skip?: number;
+    limit?: number
+  }) => apiClient.get('/experiments', { params }),
+  summary: (params?: { project_id?: number }) =>
+    apiClient.get('/experiments/summary', { params }),
+  get: (id: number) => apiClient.get(`/experiments/${id}`),
+  create: (data: any) => apiClient.post('/experiments', data),
+  update: (id: number, data: any) => apiClient.put(`/experiments/${id}`, data),
+  delete: (id: number) => apiClient.delete(`/experiments/${id}`),
+}
+
+// Jobs
+export const jobApi = {
+  list: (params?: { project_id?: number; job_type?: string; status?: string; skip?: number; limit?: number }) =>
+    apiClient.get('/jobs', { params }),
+  summary: (params?: { project_id?: number }) =>
+    apiClient.get('/jobs/summary', { params }),
+  get: (id: number) => apiClient.get(`/jobs/${id}`),
+  create: (data: any) => apiClient.post('/jobs', data),
+  update: (id: number, data: any) => apiClient.put(`/jobs/${id}`, data),
+  cancel: (id: number) => apiClient.post(`/jobs/${id}/cancel`),
+  delete: (id: number) => apiClient.delete(`/jobs/${id}`),
 }
 
 /**
