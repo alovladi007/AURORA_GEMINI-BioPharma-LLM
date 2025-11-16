@@ -1,0 +1,205 @@
+version: '3.8'
+
+services:
+  # ============================================
+  # PostgreSQL Database
+  # ============================================
+  db:
+    image: postgres:15-alpine
+    container_name: pharma-ai-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-pharma_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pharma_password_change_in_production}
+      POSTGRES_DB: ${POSTGRES_DB:-pharma_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pharma_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pharma-network
+
+  # ============================================
+  # Redis (Caching & Task Queue)
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: pharma-ai-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pharma-network
+
+  # ============================================
+  # Backend API (FastAPI)
+  # ============================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pharma-ai-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-pharma_user}:${POSTGRES_PASSWORD:-pharma_password_change_in_production}@db:5432/${POSTGRES_DB:-pharma_db}
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - backend_storage:/app/storage
+      - ml_models:/app/ml/models
+      - ml_data:/app/ml/data
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - pharma-network
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # ============================================
+  # Celery Worker (Background Tasks)
+  # ============================================
+  celery-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pharma-ai-celery-worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-pharma_user}:${POSTGRES_PASSWORD:-pharma_password_change_in_production}@db:5432/${POSTGRES_DB:-pharma_db}
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    volumes:
+      - ./backend:/app
+      - backend_storage:/app/storage
+      - ml_models:/app/ml/models
+      - ml_data:/app/ml/data
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - pharma-network
+    command: celery -A app.core.celery_app worker --loglevel=info --concurrency=2
+
+  # ============================================
+  # Celery Beat (Scheduled Tasks)
+  # ============================================
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pharma-ai-celery-beat
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-pharma_user}:${POSTGRES_PASSWORD:-pharma_password_change_in_production}@db:5432/${POSTGRES_DB:-pharma_db}
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - redis
+    networks:
+      - pharma-network
+    command: celery -A app.core.celery_app beat --loglevel=info
+
+  # ============================================
+  # Frontend (Next.js)
+  # ============================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pharma-ai-frontend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NODE_ENV=development
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+    networks:
+      - pharma-network
+    command: npm run dev
+
+  # ============================================
+  # Neo4j (Optional - for Drug Repurposing Graph)
+  # Uncomment if using graph database
+  # ============================================
+  # neo4j:
+  #   image: neo4j:5-community
+  #   container_name: pharma-ai-neo4j
+  #   restart: unless-stopped
+  #   environment:
+  #     - NEO4J_AUTH=neo4j/neo4j_password_change_in_production
+  #     - NEO4J_PLUGINS=["apoc", "graph-data-science"]
+  #   ports:
+  #     - "7474:7474"  # HTTP
+  #     - "7687:7687"  # Bolt
+  #   volumes:
+  #     - neo4j_data:/data
+  #   networks:
+  #     - pharma-network
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  pharma-network:
+    driver: bridge
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  backend_storage:
+    driver: local
+  ml_models:
+    driver: local
+  ml_data:
+    driver: local
+  # neo4j_data:
+  #   driver: local
