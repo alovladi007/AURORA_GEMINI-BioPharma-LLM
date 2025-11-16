@@ -9,18 +9,21 @@ const features = [
     description: 'Generate novel molecular structures using AI-powered generative models',
     icon: SparklesIcon,
     href: '/drug-design/generate',
+    status: 'available',
   },
   {
     name: 'SAR Prediction',
     description: 'Predict structure-activity relationships for your compounds',
     icon: ChartBarIcon,
     href: '/drug-design/sar',
+    status: 'available',
   },
   {
     name: 'Lead Optimization',
     description: 'Optimize lead compounds for better drug-like properties',
     icon: CogIcon,
     href: '/drug-design/optimize',
+    status: 'available',
   },
 ]
 
@@ -59,10 +62,13 @@ export default function DrugDesignPage() {
             <Link
               key={feature.name}
               href={feature.href}
-              className="card group hover:shadow-lg hover:ring-2 hover:ring-blue-500"
+              className="card group hover:shadow-lg hover:ring-2 hover:ring-blue-500 transition-all"
             >
-              <feature.icon className="h-8 w-8 text-blue-600" />
-              <h3 className="mt-4 text-lg font-semibold text-gray-900 group-hover:text-blue-700">
+              <div className="flex items-center justify-between mb-4">
+                <feature.icon className="h-8 w-8 text-blue-600" />
+                <span className="badge badge-success text-xs">Available</span>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-700">
                 {feature.name}
               </h3>
               <p className="mt-2 text-sm text-gray-600">{feature.description}</p>
@@ -82,7 +88,7 @@ export default function DrugDesignPage() {
           <ol className="mt-4 space-y-2 text-sm text-blue-800">
             <li className="flex items-start">
               <span className="mr-2 font-semibold">1.</span>
-              <span>Upload your molecular dataset or use example data</span>
+              <span>Enter SMILES strings or upload your molecular data</span>
             </li>
             <li className="flex items-start">
               <span className="mr-2 font-semibold">2.</span>
@@ -99,16 +105,22 @@ export default function DrugDesignPage() {
           </ol>
         </div>
 
-        {/* Placeholder Notice */}
-        <div className="mt-8 rounded-lg border-2 border-dashed border-gray-300 p-8 text-center">
-          <BeakerIcon className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-semibold text-gray-900">Module Under Development</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            The AI Drug Design module is currently being built. Check back soon for full functionality.
-          </p>
-          <Link href="/" className="mt-4 btn-primary inline-flex">
-            Back to Home
-          </Link>
+        {/* Key Features */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="card">
+            <h3 className="text-lg font-semibold text-gray-900">Powered by RDKit & PyTorch</h3>
+            <p className="mt-2 text-sm text-gray-600">
+              Our ML models use industry-standard cheminformatics libraries and deep learning
+              frameworks for accurate predictions and molecular generation.
+            </p>
+          </div>
+          <div className="card">
+            <h3 className="text-lg font-semibold text-gray-900">Real-time Predictions</h3>
+            <p className="mt-2 text-sm text-gray-600">
+              Get instant ADMET predictions, activity scores, and molecular property calculations
+              for your drug candidates.
+            </p>
+          </div>
         </div>
       </main>
     </div>
