@@ -14,7 +14,7 @@ import logging
 
 from app.core.config import settings
 from app.core.database import init_db
-from app.api.v1.endpoints import health, projects, drug_design
+from app.api.v1.endpoints import health, projects, drug_design, safety
 
 # Configure logging
 logging.basicConfig(
@@ -149,9 +149,16 @@ app.include_router(
     tags=["Drug Design"]
 )
 
+# Include safety & toxicity endpoint
+app.include_router(
+    safety.router,
+    prefix=f"{settings.API_V1_PREFIX}/safety",
+    tags=["Safety & Toxicity"]
+)
+
 # Additional routers will be added here as modules are developed
 # Example:
-# from app.api.v1.endpoints import clinical_trials, repurposing, safety
+# from app.api.v1.endpoints import clinical_trials, repurposing
 # app.include_router(clinical_trials.router, prefix=f"{settings.API_V1_PREFIX}/clinical-trials", tags=["Clinical Trials"])
 # etc.
 
