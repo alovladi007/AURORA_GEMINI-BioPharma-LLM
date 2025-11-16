@@ -14,7 +14,7 @@ import logging
 
 from app.core.config import settings
 from app.core.database import init_db
-from app.api.v1.endpoints import health
+from app.api.v1.endpoints import health, projects
 
 # Configure logging
 logging.basicConfig(
@@ -135,10 +135,16 @@ app.include_router(
     tags=["Health"]
 )
 
+# Include projects endpoint
+app.include_router(
+    projects.router,
+    prefix=f"{settings.API_V1_PREFIX}/projects",
+    tags=["Projects"]
+)
+
 # Additional routers will be added here as modules are developed
 # Example:
-# from app.api.v1.endpoints import projects, drug_design, clinical_trials, repurposing, safety
-# app.include_router(projects.router, prefix=f"{settings.API_V1_PREFIX}/projects", tags=["Projects"])
+# from app.api.v1.endpoints import drug_design, clinical_trials, repurposing, safety
 # app.include_router(drug_design.router, prefix=f"{settings.API_V1_PREFIX}/drug-design", tags=["Drug Design"])
 # etc.
 
