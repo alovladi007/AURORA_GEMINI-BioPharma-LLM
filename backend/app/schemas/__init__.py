@@ -38,6 +38,42 @@ from app.schemas.drug_design import (
     OptimizedMolecule,
 )
 
+# Dataset schemas
+from app.schemas.dataset import (
+    Dataset,
+    DatasetCreate,
+    DatasetUpdate,
+    DatasetSummary,
+    DatasetWithStats,
+)
+
+# MLModel schemas
+from app.schemas.model import (
+    MLModel,
+    MLModelCreate,
+    MLModelUpdate,
+    MLModelSummary,
+    MLModelWithMetrics,
+)
+
+# Experiment schemas
+from app.schemas.experiment import (
+    Experiment,
+    ExperimentCreate,
+    ExperimentUpdate,
+    ExperimentSummary,
+    ExperimentWithDuration,
+)
+
+# Job schemas
+from app.schemas.job import (
+    Job,
+    JobCreate,
+    JobUpdate,
+    JobSummary,
+    JobWithDuration,
+)
+
 # Safety schemas
 from app.schemas.safety import (
     ADMETPredictionRequest,
