@@ -125,6 +125,14 @@ db-downgrade: ## Rollback last migration
 	@echo "$(BLUE)Rolling back migration...$(NC)"
 	@docker-compose exec backend alembic downgrade -1
 
+db-current: ## Show current migration version
+	@echo "$(BLUE)Current migration version:$(NC)"
+	@docker-compose exec backend alembic current
+
+db-history: ## Show migration history
+	@echo "$(BLUE)Migration history:$(NC)"
+	@docker-compose exec backend alembic history
+
 db-reset: ## Reset database (WARNING: destroys all data)
 	@echo "$(RED)⚠️  WARNING: This will destroy all data!$(NC)"
 	@read -p "Are you sure? [y/N] " -n 1 -r; \

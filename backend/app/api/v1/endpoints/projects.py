@@ -18,15 +18,9 @@ from app.schemas.project import (
     ProjectSummary,
 )
 from app.models.project import ProjectStatus
+from app.api.deps import get_current_user_id
 
 router = APIRouter()
-
-
-# TODO: Add authentication dependency when auth is implemented
-# For now, using a placeholder user_id
-def get_current_user_id() -> int:
-    """Placeholder for current user ID. Will be replaced with actual auth."""
-    return 1  # Default test user
 
 
 @router.get("/", response_model=List[Project])

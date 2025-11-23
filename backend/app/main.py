@@ -14,7 +14,9 @@ import logging
 
 from app.core.config import settings
 from app.core.database import init_db
-from app.api.v1.endpoints import health, projects, drug_design, safety, datasets, models, experiments, jobs, clinical_trials, repurposing
+from app.api.v1.endpoints import health, auth, projects, drug_design, safety, datasets, models, experiments, jobs, clinical_trials, repurposing, upload
+from app.middleware.logging import StructuredLoggingMiddleware
+from app.middleware.rate_limit import RateLimitMiddleware
 
 # Configure logging
 logging.basicConfig(
@@ -106,6 +108,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Structured logging middleware
+app.add_middleware(StructuredLoggingMiddleware)
+
+# Rate limiting middleware (only in production)
+if settings.ENVIRONMENT == "production":
+    app.add_middleware(RateLimitMiddleware)
+
 
 # ============================================
 # Global Exception Handlers
@@ -133,6 +142,13 @@ app.include_router(
     health.router,
     prefix=settings.API_V1_PREFIX,
     tags=["Health"]
+)
+
+# Include authentication endpoint
+app.include_router(
+    auth.router,
+    prefix=f"{settings.API_V1_PREFIX}/auth",
+    tags=["Authentication"]
 )
 
 # Include projects endpoint
@@ -196,6 +212,13 @@ app.include_router(
     repurposing.router,
     prefix=f"{settings.API_V1_PREFIX}/repurposing",
     tags=["Drug Repurposing"]
+)
+
+# Include file upload endpoint
+app.include_router(
+    upload.router,
+    prefix=f"{settings.API_V1_PREFIX}/upload",
+    tags=["File Upload"]
 )
 
 
