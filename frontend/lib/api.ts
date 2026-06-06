@@ -3,9 +3,19 @@
  */
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios'
+import { getAuthToken, clearSession } from './auth'
+import type {
+  AuthToken,
+  User,
+  LoginCredentials,
+  RegisterData,
+} from './types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 const API_V1_PREFIX = '/api/v1'
+
+/** Where to send the user when their session becomes invalid. */
+const LOGIN_PATH = '/login'
 
 /**
  * Create axios instance with default configuration
@@ -19,33 +29,41 @@ const createApiClient = (): AxiosInstance => {
     },
   })
 
-  // Request interceptor for adding auth token
+  // Request interceptor: inject the JWT access token when present.
   client.interceptors.request.use(
     (config) => {
-      // TODO: Add authentication token when auth is implemented
-      // const token = getAuthToken()
-      // if (token) {
-      //   config.headers.Authorization = `Bearer ${token}`
-      // }
+      const token = getAuthToken()
+      if (token) {
+        config.headers = config.headers ?? {}
+        config.headers.Authorization = `Bearer ${token}`
+      }
       return config
     },
-    (error) => {
-      return Promise.reject(error)
-    }
+    (error) => Promise.reject(error)
   )
 
-  // Response interceptor for error handling
+  // Response interceptor: centralized error handling + auth expiry redirect.
   client.interceptors.response.use(
     (response) => response,
     (error: AxiosError) => {
       if (error.response) {
-        // Server responded with error status
-        console.error('API Error:', error.response.status, error.response.data)
+        const status = error.response.status
+        console.error('API Error:', status, error.response.data)
+
+        // On 401 (expired/invalid token) clear the session and bounce to login,
+        // unless the failing request was itself an auth call.
+        const url = error.config?.url ?? ''
+        const isAuthCall = url.includes('/auth/login') || url.includes('/auth/register')
+        if (status === 401 && !isAuthCall && typeof window !== 'undefined') {
+          clearSession()
+          if (window.location.pathname !== LOGIN_PATH) {
+            const next = encodeURIComponent(window.location.pathname)
+            window.location.assign(`${LOGIN_PATH}?next=${next}`)
+          }
+        }
       } else if (error.request) {
-        // Request made but no response
         console.error('Network Error:', error.message)
       } else {
-        // Something else happened
         console.error('Error:', error.message)
       }
       return Promise.reject(error)
@@ -56,6 +74,22 @@ const createApiClient = (): AxiosInstance => {
 }
 
 export const apiClient = createApiClient()
+
+/**
+ * Authentication API.
+ * Matches backend `/api/v1/auth/*` endpoints.
+ */
+export const authApi = {
+  register: (data: RegisterData) =>
+    apiClient.post<User>('/auth/register', data),
+  login: (credentials: LoginCredentials) =>
+    apiClient.post<AuthToken>('/auth/login', credentials),
+  me: () => apiClient.get<User>('/auth/me'),
+  refresh: () => apiClient.post<AuthToken>('/auth/refresh'),
+  logout: () => apiClient.post<{ message: string }>('/auth/logout'),
+  changePassword: (data: { old_password: string; new_password: string }) =>
+    apiClient.post<{ message: string }>('/auth/change-password', data),
+}
 
 /**
  * API service functions

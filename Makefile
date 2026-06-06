@@ -167,10 +167,15 @@ shell-frontend: ## Open shell in frontend container
 shell-db: ## Open shell in database container
 	@docker-compose exec db /bin/bash
 
+# Data ingestion
+ingest-chembl: ## Ingest a ChEMBL target (usage: make ingest-chembl target=CHEMBL203)
+	@echo "$(BLUE)Ingesting ChEMBL target $(target)...$(NC)"
+	@docker-compose exec backend python -m app.data.ingest chembl --target $(target)
+
 # Training and ML
-train-drug-design: ## Train drug design models
-	@echo "$(BLUE)Training drug design models...$(NC)"
-	@docker-compose exec backend python -m app.ml.drug_design.train
+train-drug-design: ## Train SAR model (usage: make train-drug-design target=CHEMBL203)
+	@echo "$(BLUE)Training drug design SAR model...$(NC)"
+	@docker-compose exec backend python -m app.ml.drug_design.train --target $(target)
 
 train-safety: ## Train safety prediction models
 	@echo "$(BLUE)Training safety models...$(NC)"

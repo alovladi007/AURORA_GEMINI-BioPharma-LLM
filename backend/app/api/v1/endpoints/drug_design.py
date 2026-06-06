@@ -21,9 +21,7 @@ from app.schemas.drug_design import (
     OptimizedMolecule,
 )
 from app.ml.drug_design.inference import (
-    SAR
-
-InferenceEngine,
+    SARInferenceEngine,
     MolecularGenerator,
     create_demo_sar_model,
 )
@@ -47,17 +45,30 @@ def get_sar_engine() -> SARInferenceEngine:
     if _sar_engine is None:
         logger.info("Initializing SAR inference engine...")
 
-        # Try to load model, or create demo model
-        model_path = Path(settings.MODEL_ARTIFACTS_PATH) / "drug_design" / "sar_model.pkl"
+        artifacts_root = Path(settings.MODEL_ARTIFACTS_PATH)
 
-        if model_path.exists():
-            _sar_engine = SARInferenceEngine(model_path=str(model_path), model_type="random_forest")
+        # Preference order:
+        #   1. Real model trained via `python -m app.ml.drug_design.train`
+        #      (saved as <artifacts>/sar_random_forest.joblib).
+        #   2. Legacy demo path (<artifacts>/drug_design/sar_model.pkl).
+        #   3. Train a demo model as a last-resort fallback so the API stays usable.
+        real_model_path = artifacts_root / "sar_random_forest.joblib"
+        legacy_model_path = artifacts_root / "drug_design" / "sar_model.pkl"
+
+        if real_model_path.exists():
+            logger.info("Loading trained SAR model from %s", real_model_path)
+            _sar_engine = SARInferenceEngine(model_path=str(real_model_path), model_type="random_forest")
+        elif legacy_model_path.exists():
+            logger.info("Loading SAR model from %s", legacy_model_path)
+            _sar_engine = SARInferenceEngine(model_path=str(legacy_model_path), model_type="random_forest")
         else:
-            # Create and save demo model
-            logger.warning("No trained SAR model found. Creating demo model...")
-            model_path.parent.mkdir(parents=True, exist_ok=True)
-            create_demo_sar_model(save_path=str(model_path))
-            _sar_engine = SARInferenceEngine(model_path=str(model_path), model_type="random_forest")
+            logger.warning(
+                "No trained SAR model found. Falling back to a demo model. "
+                "Train a real model with: python -m app.ml.drug_design.train --target CHEMBL203"
+            )
+            legacy_model_path.parent.mkdir(parents=True, exist_ok=True)
+            create_demo_sar_model(save_path=str(legacy_model_path))
+            _sar_engine = SARInferenceEngine(model_path=str(legacy_model_path), model_type="random_forest")
 
     return _sar_engine
 
