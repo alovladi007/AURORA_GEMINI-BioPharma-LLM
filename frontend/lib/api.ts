@@ -9,6 +9,8 @@ import type {
   User,
   LoginCredentials,
   RegisterData,
+  MoleculeView,
+  JobLaunchResponse,
 } from './types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
@@ -138,6 +140,29 @@ export const safetyApi = {
   predictADMET: (data: any) => apiClient.post('/safety/admet', data),
   predictToxicity: (data: any) => apiClient.post('/safety/toxicity', data),
   screenDDI: (data: any) => apiClient.post('/safety/ddi', data),
+}
+
+// Molecule visualization
+export const visualizationApi = {
+  molecule: (smiles: string, width = 350, height = 300) =>
+    apiClient.get<MoleculeView>('/visualize/molecule', {
+      params: { smiles, width, height },
+    }),
+  molecules: (smiles_list: string[], width = 250, height = 200) =>
+    apiClient.post<MoleculeView[]>('/visualize/molecules', { smiles_list, width, height }),
+}
+
+// Training orchestration
+export const trainingApi = {
+  launchSAR: (data: {
+    project_id: number
+    target?: string
+    input_csv?: string
+    model_name?: string
+    max_records?: number
+    n_estimators?: number
+    max_depth?: number
+  }) => apiClient.post<JobLaunchResponse>('/training/sar', data),
 }
 
 // Datasets

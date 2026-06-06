@@ -3,6 +3,35 @@
  */
 
 // ============================================
+// Visualization Types
+// ============================================
+
+export interface LipinskiResult {
+  checks: Record<string, boolean>
+  violations: number
+  drug_like: boolean
+}
+
+export interface MoleculeView {
+  smiles: string
+  valid: boolean
+  svg?: string | null
+  descriptors?: Record<string, number> | null
+  lipinski?: LipinskiResult | null
+}
+
+// ============================================
+// Training / Job Launch Types
+// ============================================
+
+export interface JobLaunchResponse {
+  job_id: number
+  task_id: string | null
+  status: string
+  message: string
+}
+
+// ============================================
 // User & Auth Types
 // ============================================
 

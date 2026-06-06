@@ -1,24 +1,39 @@
-"""Celery tasks for clinical trials module."""
+"""Celery tasks for the Clinical Trials module.
+
+These wrap the ClinicalTrialsEngine. Parameters are passed as a dict and unpacked
+to the engine method, keeping the task layer decoupled from evolving signatures.
+"""
+
+from __future__ import annotations
+
+from typing import Any, Dict
 
 from app.celery_app import celery_app
-from app.tasks.drug_design_tasks import CallbackTask
-from app.ml.clinical_trials.inference import (
-    predict_patient_recruitment,
-    optimize_trial_design,
-    monitor_safety_signals,
-)
+from app.tasks.base import TrackedTask
 
-@celery_app.task(base=CallbackTask, bind=True, name="clinical.recruit")
-def recruit_patients_task(self, trial_criteria: dict, job_id: int = None):
-    """Predict patient recruitment asynchronously."""
-    return predict_patient_recruitment(trial_criteria)
 
-@celery_app.task(base=CallbackTask, bind=True, name="clinical.design")
-def design_trial_task(self, trial_params: dict, job_id: int = None):
-    """Optimize trial design asynchronously."""
-    return optimize_trial_design(trial_params)
+@celery_app.task(base=TrackedTask, bind=True, name="clinical.recruit")
+def recruit_patients_task(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    """Patient recruitment optimization. `params` -> optimize_patient_recruitment()."""
+    from app.ml.clinical_trials.inference import ClinicalTrialsEngine
 
-@celery_app.task(base=CallbackTask, bind=True, name="clinical.safety")
-def monitor_safety_task(self, trial_data: dict, job_id: int = None):
-    """Monitor safety signals asynchronously."""
-    return monitor_safety_signals(trial_data)
+    engine = ClinicalTrialsEngine()
+    return engine.optimize_patient_recruitment(**params)
+
+
+@celery_app.task(base=TrackedTask, bind=True, name="clinical.design")
+def design_trial_task(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    """Trial design optimization. `params` -> optimize_trial_design()."""
+    from app.ml.clinical_trials.inference import ClinicalTrialsEngine
+
+    engine = ClinicalTrialsEngine()
+    return engine.optimize_trial_design(**params)
+
+
+@celery_app.task(base=TrackedTask, bind=True, name="clinical.safety_plan")
+def safety_monitoring_task(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    """Safety monitoring plan. `params` -> generate_safety_monitoring_plan()."""
+    from app.ml.clinical_trials.inference import ClinicalTrialsEngine
+
+    engine = ClinicalTrialsEngine()
+    return engine.generate_safety_monitoring_plan(**params)

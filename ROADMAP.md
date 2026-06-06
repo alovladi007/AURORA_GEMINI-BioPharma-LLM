@@ -205,12 +205,28 @@ watches progress, and runs predictions from a trained model — all in the UI.
 
 ---
 
-## 6. Immediate Next Actions (this PR begins Phase 1)
+## 6. Progress Log
 
+### Phase 1 — delivered
 1. ✅ This roadmap (`ROADMAP.md`).
-2. ✅ **E1.1** Frontend auth — implemented in this PR (auth lib, context, login/register, interceptor, guard).
-3. ✅ **E1.2/E1.3 foundation** — data ingestion client + real SAR training pipeline scaffolding +
-   model-card template, implemented in this PR.
-4. ▶️ Next PRs: wire Celery to real training, add MLflow service, ADMET suite.
+2. ✅ **E1.1** Frontend auth — auth lib, context, login/register, axios interceptor, route guard, navbar.
+3. ✅ **E1.2** Data ingestion — ChEMBL client + curation + `python -m app.data.ingest`.
+4. ✅ **E1.3** Real SAR training — scaffold split, RF, model card, artifact; endpoint auto-loads the
+   trained model. `python -m app.ml.drug_design.train`.
+5. ✅ **E1.4** Job execution — `TrackedTask` Celery base syncs the `Job` table (status/progress/result);
+   `POST /api/v1/training/sar` launches a tracked training job; all 4 task modules rewritten to call
+   real engines (previously crashed the worker on import).
+6. ✅ **E1.5** MLflow — tracking service in compose + guarded logging in the training pipeline.
 
-> See `ml/model_cards/TEMPLATE.md` and `backend/app/data/` and `ml/training/` introduced alongside this plan.
+### Phase 2 — in progress
+7. ✅ **E2.3 (start)** Molecule visualization — RDKit SVG + descriptors + Lipinski endpoint
+   (`/api/v1/visualize/*`), `MoleculeViewer` React component, and a `/tools/molecule-viewer` page.
+8. ▶️ Next: ADMET suite training (TDC datasets) reusing the generic trainer; generative model for
+   de novo design; wire the viewer into the drug-design generate/SAR pages.
+
+### Fixes made along the way
+- Repaired `endpoints/drug_design.py` (mangled `SARInferenceEngine` import — module never compiled).
+- Fixed dev `docker-compose.yml` Celery command (`app.core.celery_app` → `app.celery_app`).
+- Rewrote task layer to use the real `Job.task_id` column (was a non-existent `celery_task_id`).
+
+> See `ml/model_cards/TEMPLATE.md`, `backend/app/data/`, `backend/app/ml/`, and `backend/app/tasks/`.

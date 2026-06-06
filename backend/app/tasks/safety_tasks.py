@@ -1,20 +1,42 @@
-"""Celery tasks for safety prediction module."""
+"""Celery tasks for the Safety & Toxicity module."""
+
+from __future__ import annotations
+
+from typing import Any, Dict, List, Optional, Tuple
 
 from app.celery_app import celery_app
-from app.tasks.drug_design_tasks import CallbackTask
-from app.ml.safety.inference import predict_admet, predict_toxicity, screen_ddi
+from app.tasks.base import TrackedTask
 
-@celery_app.task(base=CallbackTask, bind=True, name="safety.admet")
-def predict_admet_task(self, smiles: str, job_id: int = None):
-    """Predict ADMET properties asynchronously."""
-    return predict_admet(smiles)
 
-@celery_app.task(base=CallbackTask, bind=True, name="safety.toxicity")
-def predict_toxicity_task(self, smiles: str, job_id: int = None):
-    """Predict toxicity asynchronously."""
-    return predict_toxicity(smiles)
+@celery_app.task(base=TrackedTask, bind=True, name="safety.predict_admet")
+def predict_admet_task(self, smiles_list: List[str]) -> Dict[str, Any]:
+    """Batch ADMET prediction."""
+    from app.ml.safety.inference import SafetyInferenceEngine
 
-@celery_app.task(base=CallbackTask, bind=True, name="safety.ddi")
-def screen_ddi_task(self, drug1_smiles: str, drug2_smiles: str, job_id: int = None):
-    """Screen drug-drug interactions asynchronously."""
-    return screen_ddi(drug1_smiles, drug2_smiles)
+    engine = SafetyInferenceEngine()
+    results = engine.predict_admet(smiles_list)
+    return {"results": results, "count": len(results)}
+
+
+@celery_app.task(base=TrackedTask, bind=True, name="safety.predict_toxicity")
+def predict_toxicity_task(
+    self, smiles_list: List[str], endpoints: Optional[List[str]] = None
+) -> Dict[str, Any]:
+    """Batch toxicity prediction."""
+    from app.ml.safety.inference import SafetyInferenceEngine
+
+    engine = SafetyInferenceEngine()
+    results = engine.predict_toxicity(smiles_list, endpoints=endpoints)
+    return {"results": results, "count": len(results)}
+
+
+@celery_app.task(base=TrackedTask, bind=True, name="safety.screen_ddi")
+def screen_ddi_task(self, drug_pairs: List[Tuple[str, str]]) -> Dict[str, Any]:
+    """Screen drug–drug interactions for a list of SMILES pairs."""
+    from app.ml.safety.inference import SafetyInferenceEngine
+
+    engine = SafetyInferenceEngine()
+    # JSON transport delivers pairs as lists; normalize to tuples.
+    pairs = [tuple(p) for p in drug_pairs]
+    results = engine.screen_ddi(pairs)
+    return {"results": results, "count": len(results)}

@@ -14,7 +14,7 @@ import logging
 
 from app.core.config import settings
 from app.core.database import init_db
-from app.api.v1.endpoints import health, auth, projects, drug_design, safety, datasets, models, experiments, jobs, clinical_trials, repurposing, upload
+from app.api.v1.endpoints import health, auth, projects, drug_design, safety, datasets, models, experiments, jobs, clinical_trials, repurposing, upload, training, visualization
 from app.middleware.logging import StructuredLoggingMiddleware
 from app.middleware.rate_limit import RateLimitMiddleware
 
@@ -219,6 +219,20 @@ app.include_router(
     upload.router,
     prefix=f"{settings.API_V1_PREFIX}/upload",
     tags=["File Upload"]
+)
+
+# Include training orchestration endpoint
+app.include_router(
+    training.router,
+    prefix=f"{settings.API_V1_PREFIX}/training",
+    tags=["Training"]
+)
+
+# Include molecule visualization endpoint
+app.include_router(
+    visualization.router,
+    prefix=f"{settings.API_V1_PREFIX}/visualize",
+    tags=["Visualization"]
 )
 
 

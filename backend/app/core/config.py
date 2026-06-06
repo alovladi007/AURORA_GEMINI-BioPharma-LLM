@@ -174,6 +174,10 @@ class Settings(BaseSettings):
     SENTRY_DSN: Optional[str] = None
     LOG_FORMAT: str = "json"  # Options: json, text
 
+    # MLflow experiment tracking (optional; skipped if unset/unreachable)
+    MLFLOW_TRACKING_URI: Optional[str] = None
+    MLFLOW_EXPERIMENT: str = "biopharma-llm"
+
     # ============================================
     # External APIs
     # ============================================

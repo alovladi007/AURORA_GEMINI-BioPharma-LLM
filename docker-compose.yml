@@ -59,6 +59,7 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
     ports:
       - "8000:8000"
     volumes:
@@ -97,6 +98,7 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
     volumes:
       - ./backend:/app
       - backend_storage:/app/storage
@@ -109,7 +111,7 @@ services:
         condition: service_healthy
     networks:
       - pharma-network
-    command: celery -A app.core.celery_app worker --loglevel=info --concurrency=2
+    command: celery -A app.celery_app worker --loglevel=info --concurrency=2
 
   # ============================================
   # Celery Beat (Scheduled Tasks)
@@ -133,7 +135,27 @@ services:
       - redis
     networks:
       - pharma-network
-    command: celery -A app.core.celery_app beat --loglevel=info
+    command: celery -A app.celery_app beat --loglevel=info
+
+  # ============================================
+  # MLflow (Experiment Tracking & Model Registry)
+  # ============================================
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.10.2
+    container_name: pharma-ai-mlflow
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow_data:/mlflow
+    networks:
+      - pharma-network
+    command: >
+      mlflow server
+      --host 0.0.0.0
+      --port 5000
+      --backend-store-uri sqlite:////mlflow/mlflow.db
+      --default-artifact-root /mlflow/artifacts
 
   # ============================================
   # Frontend (Next.js)
@@ -200,6 +222,8 @@ volumes:
   ml_models:
     driver: local
   ml_data:
+    driver: local
+  mlflow_data:
     driver: local
   # neo4j_data:
   #   driver: local
